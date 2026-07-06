@@ -17,15 +17,21 @@ int state = 0;
 void GPIO_init(void){
     ANSELFbits.ANSF4 = 0;
     ANSELFbits.ANSF5 = 0;
+    ANSELGbits.ANSG2 = 0;
     ANSELGbits.ANSG3 = 0;
+    ANSELGbits.ANSG11 = 0;
     TRISFbits.TRISF4 = 0;
     TRISFbits.TRISF5 = 0;
     TRISFbits.TRISF6 = 0;
+    TRISGbits.TRISG2 = 0;
     TRISGbits.TRISG3 = 0;
+    TRISGbits.TRISG11 = 0;
     LATFbits.LATF4 = 0;
     LATFbits.LATF5 = 0;
     LATFbits.LATF6 = 0;
     LATGbits.LATG3 = 0;
+    LATGbits.LATG2 = 0;
+    LATGbits.LATG11 = 0;
 }
 
 void Timer_init(void){
@@ -77,10 +83,45 @@ void __attribute__((interrupt,auto_psv))_T1Interrupt(void){
 int main(void) {
     GPIO_init();
     Timer_init();
-    volatile long i ;
+    volatile long i;
+    int state2=0;
     while(1){
-        LATGbits.LATG3 =!LATGbits.LATG3;
-        for(i = 0;i<500000;i++);
+        switch(state2){
+                
+            case 0:  state2 = 1; 
+                      break;
+            
+            case 1:  
+                    LATGbits.LATG3 =1;
+                     state2 = 2;
+                     for(i = 0 ; i < 655350;i++ );
+                     LATGbits.LATG3 = 0;
+                     break;
+            
+            case 2: 
+                
+                    LATGbits.LATG2 = 1;
+                    state2 = 3;
+                    for(i = 0 ; i < 655350;i++ );
+                    LATGbits.LATG2 = 0;
+                    break;
+            case 3:
+                
+                LATGbits.LATG11 = 1;
+                state2 = 4;
+                for(i = 0 ; i < 655350;i++ );
+                LATGbits.LATG11 = 0;
+                break;
+                
+            case 4: 
+                    LATGbits.LATG2 = 1;
+                    state2 = 1;
+                    for(i = 0 ; i < 655350;i++ );
+                    LATGbits.LATG2 = 0;
+                    break;
+            
+       }
+
     }
    
 }
