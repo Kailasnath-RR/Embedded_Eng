@@ -8,7 +8,7 @@
 ## Day 1
 
 * Learnt navigating the mplab ide and flashing firmware onto the Explorer16 dev kit
-* Learnt Clocks and clock ports
+* Learnt Clocks and Configs
 
 
 
@@ -16,9 +16,10 @@
 
 * Learnt TRIS , PORT AND LAT
 * Learnt ANSEL and requiring ANSEL = 0 for digital input config
-* Learn level detection and edge detection
-* detecting button pushes and toggling buttons on press
-* learnt to blink the led(firstProj.x)
-* learnt delays (firstproj.X)
-* Learnt FSM's (secondProj.x) -> \[made a LED blink pattern of 7->8->9->8->7->repeat]
+* Learnt level detection and edge detection
+* Detecting button pushes and toggling LEDs on press
+* Learnt to blink the led(firstProj.x)
+* Learnt delays (firstproj.X)
+* Learnt FSMs (secondProj.x) -> \[made a LED blink pattern of 7->8->9->8->7->repeat]
+* Learnt timers(T1COn/TMR1/PR1) and timer interrupt flag(IFS0bits.T1IF)\[thirdProj.x]
 
