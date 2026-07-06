@@ -22,4 +22,5 @@
 * Learnt delays (firstproj.X)
 * Learnt FSMs (secondProj.x) -> \[made a LED blink pattern of 7->8->9->8->7->repeat]
 * Learnt timers(T1COn/TMR1/PR1) and timer interrupt flag(IFS0bits.T1IF)\[thirdProj.x]
+* Learnt how to use Timer interrupts to avoid cpu polling\[fourthProj.x]
 
