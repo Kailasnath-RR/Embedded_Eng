@@ -14,10 +14,32 @@
     /*
      * 
      */
+     
 
     uint16_t values = 0;
     char buffer[20] = {0};
     float voltage = 0;
+    
+    char bar[16] = {0};
+    
+    int bar_calc(uint16_t v){
+        int bar_v = (v*16)/1023;
+        return bar_v;
+    }
+    
+    void draw_bar(uint16_t val){
+        int v = bar_calc(val);
+        volatile int i = 0;
+        for(i = 0 ; i < v;i++){
+            bar[i] = '#';
+        }
+        while(i<16){
+            bar[i] = '-';
+            i++;
+        }
+        LCD_PutString(bar,16);
+    }
+    
     int main(void) {
         SYS_Initialize();
         ADC_SetConfiguration(ADC_CONFIGURATION_DEFAULT);
@@ -25,9 +47,11 @@
         while(1){
              values = ADC_Read10bit(ADC_CHANNEL_12);
              voltage = (values*3.3f)/1023.0f; //formula to convert the 10bit value to volatage value in float
-             sprintf(buffer,"Voltage: %.1f V",voltage); //preserves the voltage value as character to display onto lcd
+             sprintf(buffer,"Voltage: %.1f V  ",voltage); //preserves the voltage value as character to display onto lcd
              LCD_ClearScreen();
-             LCD_PutString(buffer,14);
+             LCD_PutString(buffer,16);
+             
+             draw_bar(values);
 
         }
 

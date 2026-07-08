@@ -58,7 +58,7 @@ void Timer_init(void){
 
 
 void __attribute__((interrupt,auto_psv))_T1Interrupt(void){
-    LATBbits.LATB10 = !LATBbits.LATB10;
+    LATBbits.LATB10 = !LATBbits.LATB10; // Toggle RB10 to measure the output frequency and period using an oscilloscope
     switch(state){
         case 0: 
             state = 1;
