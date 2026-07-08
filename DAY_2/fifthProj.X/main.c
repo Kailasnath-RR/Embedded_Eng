@@ -14,6 +14,12 @@
 #pragma config OSCIOFNC=ON
 
 int state = 0;
+void Clock_Init(){
+    PLLFBD = 68;
+    CLKDIVbits.PLLPRE = 0;
+    CLKDIVbits.PLLPOST = 0;
+    while(OSCCONbits.LOCK==0);
+}
 void GPIO_init(void){
     ANSELFbits.ANSF4 = 0;
     ANSELFbits.ANSF5 = 0;
@@ -81,6 +87,7 @@ void __attribute__((interrupt,auto_psv))_T1Interrupt(void){
 }
 
 int main(void) {
+    Clock_Init();
     GPIO_init();
     Timer_init();
     volatile long i;
@@ -94,7 +101,7 @@ int main(void) {
             case 1:  
                     LATGbits.LATG3 =1;
                      state2 = 2;
-                     for(i = 0 ; i < 655350;i++ );
+                     for(i = 0 ; i < 6553500;i++ );
                      LATGbits.LATG3 = 0;
                      break;
             
@@ -102,21 +109,21 @@ int main(void) {
                 
                     LATGbits.LATG2 = 1;
                     state2 = 3;
-                    for(i = 0 ; i < 655350;i++ );
+                    for(i = 0 ; i < 6553500;i++ );
                     LATGbits.LATG2 = 0;
                     break;
             case 3:
                 
                 LATGbits.LATG11 = 1;
                 state2 = 4;
-                for(i = 0 ; i < 655350;i++ );
+                for(i = 0 ; i < 6553500;i++ );
                 LATGbits.LATG11 = 0;
                 break;
                 
             case 4: 
                     LATGbits.LATG2 = 1;
                     state2 = 1;
-                    for(i = 0 ; i < 655350;i++ );
+                    for(i = 0 ; i < 6553500;i++ );
                     LATGbits.LATG2 = 0;
                     break;
             

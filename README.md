@@ -25,3 +25,27 @@
 * Learnt how to use Timer interrupts to avoid cpu polling\[fourthProj.x]
 * Applied interrupts and FSMs for 3 LEDs while using software delay for one LEDs \[fifthProj.x = fourthProj+secondProj]
 
+#### 
+
+#### **DAY 3**
+
+* Learnt UART architecture (TX, RX, Baud Rate Generator)
+* Manually configured UART using U1MODE, U1STA and U1BRG (without MCC)
+* Learnt the relationship between FCY, BRG and baud rate generation
+* Debugged UART baud rate issues caused by incorrect clock assumptions
+* Successfully transmitted data over UART (garbled output due to baud rate mismatch)
+* Learnt the HD44780 LCD communication protocol (Commands, Data, RS, RW, Enable)
+* Implemented a manual GPIO-based LCD driver
+* Configured LCD control and data pins using TRIS, LAT and ANSEL
+* Failed to get the manual GPIO LCD driver working, switched to the official PMP-based implementation
+
+#### **DAY 4**
+
+* Learnt the difference between GPIO-driven LCD interface and Parallel Master Port (PMP) interface
+* Learnt PMCON, PMMODE, PMAEN, PMDIN1 and PMADDR registers (PMP config in datasheet)
+* Learnt why the Explorer 16 LCD uses PMP instead of manual GPIO control
+* Implemented Microchip's official LCD driver and verified LCD functionality
+* Combined GPIO, LCD, Timer1 and interrupts into a single application (sixthProj.X)
+* Explored the limitations of performing peripheral operations (LCD updates) inside an ISR and understood why non-blocking main loops are preferred
+* Built an interactive LCD application with timed warning messages using Timer1 interrupts (sixthProj.X)
+
