@@ -32,12 +32,14 @@ void GPIO_init(void){
     TRISGbits.TRISG2 = 0;
     TRISGbits.TRISG3 = 0;
     TRISGbits.TRISG11 = 0;
+    TRISBbits.TRISB10 = 0;
     LATFbits.LATF4 = 0;
     LATFbits.LATF5 = 0;
     LATFbits.LATF6 = 0;
     LATGbits.LATG3 = 0;
     LATGbits.LATG2 = 0;
     LATGbits.LATG11 = 0;
+    LATBbits.LATB10 = 0;
 }
 
 void Timer_init(void){
@@ -56,7 +58,7 @@ void Timer_init(void){
 
 
 void __attribute__((interrupt,auto_psv))_T1Interrupt(void){
-
+    LATBbits.LATB10 = !LATBbits.LATB10;
     switch(state){
         case 0: 
             state = 1;
@@ -93,6 +95,7 @@ int main(void) {
     volatile long i;
     int state2=0;
     while(1){
+        
         switch(state2){
                 
             case 0:  state2 = 1; 

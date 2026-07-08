@@ -48,4 +48,9 @@
 * Combined GPIO, LCD, Timer1 and interrupts into a single application (sixthProj.X)
 * Explored the limitations of performing peripheral operations (LCD updates) inside an ISR and understood why non-blocking main loops are preferred
 * Built an interactive LCD application with timed warning messages using Timer1 interrupts (sixthProj.X)
+* Learnt ADC fundamentals and ADC configuration
+* Configured the ADC using Microchip's official driver
+* Read analog voltage from the onboard potentiometer (P20\_POT)
+* Converted the 10-bit ADC value (0–1023) into voltage (0–3.3V)
+* Displayed the ADC reading and calculated voltage on the LCD \[seventhProj.X]
 
