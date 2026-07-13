@@ -61,4 +61,6 @@
 * spent day 5 studying SPI writing snake game(built movement and loopback logic alongside game state implementation) \[snek.x]
 * spent day 6 doing pwm configuration and oscilloscope measurement using mcc and further worked on my game implementation(built apple spawn logic, apple collision logic)\[eightProj.x,snek.X]
 * implemented CGRAM characters and gave final touches to the game
+* Also did a bit more on Clock config (used mcc) and how to out Fcy onto REFCLOCK pin \[ninthProj.x]
+* Also learnt more about PPS and its benefits
 

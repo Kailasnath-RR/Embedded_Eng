@@ -14,7 +14,7 @@
  */
 #define lcd_size  33
 
-int length = 32;
+int length = 1;
 typedef struct{
     int x;
     int y;
@@ -199,9 +199,9 @@ void draw_snake(void){
     for(int i = 0 ;i < length; i ++){
         LCD_ShiftCursorTo(Snake[i].x,Snake[i].y);
         if(i == 0){
-            LCD_PutChar(1);
+            LCD_PutChar(1);   //1 <-position 1 in CGRAM corresponds to bitmap for SNAKE head
         }else{
-            LCD_PutChar(2);
+            LCD_PutChar(2);   //2 <-position 2 in CGRAM corresponds to bitmap for SNAKE body
         }
     
     }
@@ -210,7 +210,7 @@ void draw_snake(void){
 }
 void draw_apple(void){
     LCD_ShiftCursorTo(Apple.x,Apple.y);
-    LCD_PutChar(0);
+    LCD_PutChar(0); //0 <-position 0 in CGRAM corresponds to bitmap for apple
     
 }
 void apple_consumed_check(void){
@@ -377,7 +377,9 @@ int main(void) {
                     __delay_ms(1000);
                     state = RESTART;               
                     break;
+            
             case PLAYING : break;      
+            
             case RESTART : 
                 restart();
                 break;
