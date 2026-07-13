@@ -5,14 +5,14 @@
 * Board : Explorer 16/32
 * MCU : dsPIC33EP512GM710
 
-## Day 1
+## Day 1:
 
 * Learnt navigating the mplab ide and flashing firmware onto the Explorer16 dev kit
 * Learnt Clocks and Configs
 
 
 
-## Day 2
+## Day 2:
 
 * Learnt TRIS , PORT AND LAT
 * Learnt ANSEL and requiring ANSEL = 0 for digital input config
@@ -27,7 +27,7 @@
 
 #### 
 
-#### **DAY 3**
+#### **DAY 3:**
 
 * Learnt UART architecture (TX, RX, Baud Rate Generator)
 * Manually configured UART using U1MODE, U1STA and U1BRG (without MCC)
@@ -39,7 +39,7 @@
 * Configured LCD control and data pins using TRIS, LAT and ANSEL
 * Failed to get the manual GPIO LCD driver working, switched to the official PMP-based implementation
 
-#### **DAY 4**
+#### **DAY 4:**
 
 * Learnt the difference between GPIO-driven LCD interface and Parallel Master Port (PMP) interface
 * Learnt PMCON, PMMODE, PMAEN, PMDIN1 and PMADDR registers (PMP config in datasheet)
@@ -53,4 +53,12 @@
 * Read analog voltage from the onboard potentiometer (P20\_POT)
 * Converted the 10-bit ADC value (0–1023) into voltage (0–3.3V)
 * Displayed the ADC reading and calculated voltage on the LCD \[seventhProj.X]
+
+#### 
+
+#### DAY 5,6 \& 7:
+
+* spent day 5 studying SPI writing snake game(built movement and loopback logic alongside game state implementation) \[snek.x]
+* spent day 6 doing pwm configuration and oscilloscope measurement using mcc and further worked on my game implementation(built apple spawn logic, apple collision logic)\[eightProj.x,snek.X]
+* implemented CGRAM characters and gave final touches to the game
 
