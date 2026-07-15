@@ -77,4 +77,5 @@
 
 * Learnt to configure ADC-TImer3-DMA
 * Still debugging ADC\_Timer3-DMA links but they all have been configured
+* reimplemented UART successfully this time (mcc)
 
