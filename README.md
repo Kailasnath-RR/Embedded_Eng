@@ -69,5 +69,12 @@
 #### DAY 9:
 
 * used adc to measure potentiometer and use that to change the duty cycles of PWM (AdcToPwm.x)
-* learnt DMA theory 
+* learnt DMA theory
+
+
+
+#### DAY 10
+
+* Learnt to configure ADC-TImer3-DMA
+* Still debugging ADC\_Timer3-DMA links but they all have been configured
 
