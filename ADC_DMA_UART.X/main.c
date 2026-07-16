@@ -24,8 +24,11 @@ int Data_Ready_flag = 0;
 
 volatile uint16_t values;
 
+int machine_state = 0;  // 1 => running , 0=>stop/paused
 
+long sampling_speed_reset = 0;
 
+int lock_state = 0;
 
 char buffer[30];
 void GPIO_Init(void){
@@ -97,6 +100,9 @@ void UART_Init(void){
     
     U1MODEbits.UARTEN = 1;  // Turn on the core UART1 module engine
     U1STAbits.UTXEN = 1;    // Power up the transmission hardware circuit pin
+    
+    IFS0bits.U1RXIF = 0;
+    IEC0bits.U1RXIE = 1; //enable recieve interrupt
 }
 
 void TImer3_Init(void){
@@ -107,7 +113,7 @@ void TImer3_Init(void){
     T3CONbits.TCKPS = 2; //1:64 prescaler
     
     TMR3 = 0;//<-init time
-    PR3 = 30000; //<-count to
+    PR3 = 10000; //<-count to
     
     IFS0bits.T3IF = 0; //timer 3 interrupt flag clear
     IEC0bits.T3IE = 0; //timer 3 interrupt enable
@@ -158,6 +164,74 @@ void UART_WriteString(char *str){
     }
 }
 
+void lock_check(char c){
+    if(c == '\r' || c == ' ' || c == '\n') return;
+    
+    
+    if(lock_state == 0 && c == 'A'){
+        lock_state = 1;
+    }
+    else if(lock_state == 1 && c == 'B'){
+        lock_state = 2;
+    }
+    else if (lock_state == 2 && c == 'C'){
+        lock_state = 3;
+        UART_WriteString("Unlocked Machine.Enter 'L' anytime to lock system");
+        
+    }else{
+        lock_state = 0;
+        UART_WriteString("System Locked. Enter Password in sequence to Unlock:\r\n");
+    }
+
+}
+
+
+void set_machine_state(char c){
+    if(lock_state < 3){
+        lock_check(c);
+    }
+    else if(lock_state == 3){
+    
+            if(c == '\r' || c ==' ' || c == '\n') return;
+
+            if(c == 'p' || c == 'P'){
+                machine_state = 0;
+                UART_WriteString("Machine paused.\r\n");
+            }
+            else if(c == 's' || c == 'S'){
+                machine_state = 1;
+                UART_WriteString("Machine running.\r\n");
+            }
+            else if(c == '+'){
+                if(PR3 < 4000){ PR3 = 4000;}
+                PR3 -=2000;
+                UART_WriteString("Machine speed increased.\r\n");
+
+            }
+            else if(c == '-'){
+                if(PR3 < 4000){ PR3 = 4000;}
+
+                if(PR3>4000){
+                    PR3 +=2000;
+                    UART_WriteString("Machine speed decreased.\r\n");
+                }
+
+            }
+            else if(c == 'L'){
+                lock_state = 0;
+                UART_WriteString("System Locked. Enter Password in sequence to Unlock:\r\n");
+        
+            }       
+    
+        else{
+            UART_WriteString("Invalid Command\r\n");
+        }
+    }
+    
+    
+    
+
+}
 void LED_ON(uint16_t values){
     if(values >0){
          LATFbits.LATF7 = 1;  
@@ -216,6 +290,10 @@ void __attribute__((interrupt,no_auto_psv)) _DMA0Interrupt(void)
     IFS0bits.DMA0IF = 0;
 }
 
+void __attribute__((interrupt,no_auto_psv)) _U1RXInterrupt(void){
+    set_machine_state(U1RXREG);
+     IFS0bits.U1RXIF = 0;
+}
 
 
 int main() {
@@ -231,16 +309,20 @@ int main() {
     
     while(1){
        LED_ON(ADC1BUF0);
-       
-        if(Data_Ready_flag == 1){
+       if(machine_state == 1){
+            if(Data_Ready_flag == 1){
             
-            values = samples[15];
-            LED_ON(values);
-            float voltage  = (values *3.3)/1023;
-            sprintf(buffer,"Voltage:%3f V\r\n",voltage);
-            UART_WriteString(buffer);
-            Data_Ready_flag = 0;
-        }
+                values = samples[15];
+                LED_ON(values);
+                float voltage  = (values *3.3)/1023;
+                sprintf(buffer,"Voltage:%3f V\r\n",voltage);
+                UART_WriteString(buffer);
+                Data_Ready_flag = 0;
+            }
+       }
+       else if(machine_state == 0){
+           Data_Ready_flag = 0;
+       }
        
     }
 }

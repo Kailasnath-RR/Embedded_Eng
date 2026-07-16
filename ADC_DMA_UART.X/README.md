@@ -15,6 +15,35 @@ The project features an autonomous background data acquisition pipeline synchron
 
 ## 
 
+### Firmware State Machine \& Command Set
+
+The system boots up into a secure, silent `LOCKED` mode (`lock\_state = 0`, `machine\_state = 0`). Terminal telemetry text is suppressed until the correct sequential key conditions are satisfied.
+
+#### 
+
+#### 1\. Sequential Security Authorization (Password Engine)
+
+To unlock terminal output, the user must input the exact multi-byte sequence consecutively:
+$$\\text{Input Key Sequence: } \\text{'A'} \\rightarrow \\text{'B'} \\rightarrow \\text{'C'}$$
+
+
+
+* Any unexpected character inputs or formatting noise immediately clear the step index, resetting the state machine back to zero.
+
+#### 
+
+#### 2\. Operational Command Set (Post-Unlock)
+
+Once unlocked (`lock\_state = 3`), the firmware accepts the following runtime instructions:
+
+* **`p` / `P` (Pause):** Freezes the scrolling terminal text stream while keeping the background data array actively polling.
+* **`s` / `S` (Start/Resume):** Resumes active telemetry data streaming to the terminal window.
+* **`+` (Speed Increase):** Overwrites the hardware `PR3` timer register down by 2000 ticks, forcing the clock to overflow faster and increasing the telemetry sample frequency.
+* **`-` (Speed Decrease):** Scales the hardware `PR3` timer register up by 2000 ticks, expanding the period cycle and decreasing the data stream rate.
+* **`L` (Lock System):** A global hotkey override that instantly wipes security authorizations, halts data output, and forces the device back into secure lockdown mode.
+
+## 
+
 ## Physical Hardware Interface
 
 ### 
@@ -33,10 +62,12 @@ The project features an autonomous background data acquisition pipeline synchron
 * ##### Hardware Register Blueprint
 
 
-Timer3: T3CON = 0; T3CONbits.TCKPS = 2; // Prescaler 1:64; PR3 = 30000;
+
+Timer3: T3CON = 0; T3CONbits.TCKPS = 2 ; Prescaler 1:64; PR3 = 30000;
 ADC1: AD1CON1bits.SSRC = 2; AD1CON1bits.ASAM = 1; AD1CHS0bits.CH0SA = 20;
 DMA0: DMA0CON in continuous mode; DMA0PAD points to \\\&ADC1BUF0; DMA0REQ = 13; DMA0CNT = 15;
 UART1: U1MODE with BRGH=1; U1BRG = 95;
+
 
 
 ## Key Takeaways \& Engineering Triumphs
