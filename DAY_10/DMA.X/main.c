@@ -36,6 +36,14 @@ void InitDMA0(void)
     DMA0CONbits.SIZE = 0; //transfer bit size (0 => 16 bits)
     DMA0CONbits.DIR = 0; //sets dma direction from peripheral to ram
     
+    /* * ADDRESSING CONFIGURATION:
+     * AMODE = 0 sets Register Indirect with Post-Increment Mode.
+     * The DMA engine handles pointer management, sequentially shifting the 
+     * destination address in RAM after every transaction.
+     * * NOTE: Requires ADDMABM = 0 in adc.c to prevent hardware addressing gridlock.
+     */
+    
+    
     DMA0CONbits.AMODE = 0; //register indirect with post increment
     DMA0CONbits.MODE = 0; //one-shot mode
     
