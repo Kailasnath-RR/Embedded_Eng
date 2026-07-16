@@ -45,7 +45,7 @@ void InitDMA0(void)
     
     
     DMA0CONbits.AMODE = 0; //register indirect with post increment
-    DMA0CONbits.MODE = 0; //one-shot mode
+    DMA0CONbits.MODE = 0; //continuous mode
     
     DMA0PAD = (volatile unsigned int)&ADC1BUF0; //source location for dma
     

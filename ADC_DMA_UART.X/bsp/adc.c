@@ -180,21 +180,7 @@ bool ADC_SetConfiguration(ADC_CONFIGURATION configuration)
             AD1CON3bits.ADCS = 3; //adc conversion clock divider
 
             AD1CON4bits.ADDMAEN = 1; //enable adc ->dma link
-            
-            /* * ARCHITECTURAL BUG FIX: 
-             * CRITICAL MISMATCH: Previously set to 1 (Scatter/Gather Mode).
-             * When ADDMABM = 1, the ADC calculates memory offsets by channel, 
-             * requiring the DMA engine to be in Peripheral Indirect Mode (AMODE = 2).
-             *
-             * FIX: Set ADDMABM = 0 (Ordered Conversion Sequence Mode). 
-             * This forces the ADC to drop every result directly into the single 
-             * fixed register address (&ADC1BUF0), allowing the DMA engine's 
-             * Post-Increment Mode (AMODE = 0) to smoothly step through our 
-             * destination RAM array without address calculation conflicts.
-             */
-            // works fine even in Scatter/gather mode)
-            
-            
+  
             AD1CON1bits.ADDMABM = 1; //buffer mode
 
             AD1CHS0bits.CH0SA = 20; //sets which channel to use for adc    (make sure you are using the right channel) 
