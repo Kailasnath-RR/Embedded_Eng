@@ -10,14 +10,14 @@ The project features an autonomous background data acquisition pipeline synchron
 
 * **Timer3 (The Metronome):** Ticks in the background at a precise period using a 1:64 prescaler, serving as the automated trigger clock source.
 * **10-Bit ADC (The Bridge):** Sparked directly by the Timer3 event, it captures the analog voltage from the physical potentiometer dial (Channel 20) and converts it to a digital range (`0x0000` to `0x03FF`).
-* **DMA Channel 0 (The Delivery Driver):** Operates via Register Indirect Post-Increment mode. The instant the ADC signals a completed conversion, the DMA bypasses the CPU entirely to deposit the 10-bit value into a 32-byte memory-aligned RAM array (`samples\\\[16]`).
-* **The Grand Finale Interrupt:** Fires exclusively when all 16 slots are populated, raising a data-ready software flag (`Data\\\_Ready\\\_flag = 1`) and passing control to the main loop to process telemetry data and update the physical LED VU meter pins on Ports F and G.
+* **DMA Channel 0 (The Delivery Driver):** Operates via Register Indirect Post-Increment mode. The instant the ADC signals a completed conversion, the DMA bypasses the CPU entirely to deposit the 10-bit value into a 32-byte memory-aligned RAM array (`samples[16]`).
+* **The Grand Finale Interrupt:** Fires exclusively when all 16 slots are populated, raising a data-ready software flag (`Data_Ready_flag = 1`) and passing control to the main loop to process telemetry data and update the physical LED VU meter pins on Ports F and G.
 
 ## 
 
 ### Firmware State Machine \& Command Set
 
-The system boots up into a secure, silent `LOCKED` mode (`lock\_state = 0`, `machine\_state = 0`). Terminal telemetry text is suppressed until the correct sequential key conditions are satisfied.
+The system boots up into a secure, silent `LOCKED` mode (`lock_state = 0`, `machine_state = 0`). Terminal telemetry text is suppressed until the correct sequential key conditions are satisfied.
 
 #### 
 
@@ -34,7 +34,7 @@ $$\\text{Input Key Sequence: } \\text{'A'} \\rightarrow \\text{'B'} \\rightarrow
 
 #### 2\. Operational Command Set (Post-Unlock)
 
-Once unlocked (`lock\_state = 3`), the firmware accepts the following runtime instructions:
+Once unlocked (`lock_state = 3`), the firmware accepts the following runtime instructions:
 
 * **`p` / `P` (Pause):** Freezes the scrolling terminal text stream while keeping the background data array actively polling.
 * **`s` / `S` (Start/Resume):** Resumes active telemetry data streaming to the terminal window.
@@ -76,5 +76,5 @@ UART1: U1MODE with BRGH=1; U1BRG = 95;
 
 * **CPU Offloading:** Leveraged hardware DMA buffers to gather, store, and increment array indexes seamlessly in the background without stealing clock cycles from standard main loop executions.
 * **Hysteresis \& Latch Control:** Implemented full structural logic boundaries within the LED driving blocks to ensure pins switch down dynamically when input levels decline, avoiding sticky LED runtime states.
-* **Buffer Security:** Handled C string boundaries by explicitly managing workspace bounds (`char buffer\\\[30]`) to protect neighboring operational pointers from data overflow events.
+* **Buffer Security:** Handled C string boundaries by explicitly managing workspace bounds (`char buffer[30]`) to protect neighboring operational pointers from data overflow events.
 

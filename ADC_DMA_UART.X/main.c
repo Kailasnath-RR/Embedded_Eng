@@ -308,7 +308,8 @@ int main() {
     
     
     while(1){
-       LED_ON(ADC1BUF0);
+       if(machine_state == 1)
+            LED_ON(ADC1BUF0);
        if(machine_state == 1){
             if(Data_Ready_flag == 1){
             
