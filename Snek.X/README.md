@@ -53,6 +53,7 @@ This project was built during my embedded systems internship to practice interru
 \----------------------------------------------------------
 
 
+
 ## Controls
 
 |Button|Function|
@@ -62,15 +63,24 @@ This project was built during my embedded systems internship to practice interru
 |S5|Move Down|
 |S6|Move Up|
 
----------------or--------------------
 
 
+
+
+\--------------------------------------------------------------------or-------------------------------------------------------------------
+
+
+
+
+
+|Button|Function|
 |-|-|
 |'a'|Move Left|
 |'d'|Move Right|
 |'s'|Move Down|
 |'w'|Move Up|
-|'r'| start |
+|'r'|start|
+
 
 
 \----------------------------------------------------------
