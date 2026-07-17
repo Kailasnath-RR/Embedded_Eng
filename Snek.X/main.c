@@ -3,18 +3,19 @@
  * Author: Intern08
  *
  * Created on July 9, 2026, 2:41 PM
- */
-#define FCY 4000000UL 
+ */ 
 #include <xc.h>
 #include "bsp/lcd.h"
 #include <stdlib.h>
-#include <libpic30.h>
+
 /*
  * 
  */
 #define lcd_size  33
-
+void update_state(char controls);
 int length = 1;
+int menu_drawn_flag = 0;
+
 typedef struct{
     int x;
     int y;
@@ -117,13 +118,13 @@ void new_pos_calc(void)
 }
 
 
-void GPIO_init(void){
+void GPIO_Init(void){
     TRISDbits.TRISD6 = 1;  //s3 -> left button set to input
     TRISDbits.TRISD13 = 1; //s4 -> right button set to input
     TRISCbits.TRISC9 = 1; //s6 -> up button
     TRISFbits.TRISF7 = 1; // s5-> down button
 }
-void Timer_init(void){
+void Timer_Init(void){
     T1CONbits.TCS = 0; 
     T1CONbits.TCKPS = 2;
     TMR1 = 0;//<-init time
@@ -136,6 +137,59 @@ void Timer_init(void){
     
 
 }
+void UART_Init(void){
+    
+  
+    
+    // Set pin RB4 (the TX pin) as a digital output
+    TRISBbits.TRISB4 = 0; 
+    
+    // Open the hardware safety lock to reassign mapping paths
+    __builtin_write_OSCCONL(OSCCON & 0xBF); // Clear bit 6 to unlock PPS
+    
+    // Connect internal UART1 TX engine out to physical pin RP36 (RB4)
+    RPOR1bits.RP36R = 0x0001;    //RB4->UART1:U1TX
+    RPINR18bits.U1RXR = 0x0018;    // 24 points to pin RA8
+    
+    // Relock the safety gate to protect against accidental changes at runtime
+    __builtin_write_OSCCONL(OSCCON | 0x40); // Set bit 6 to lock PPS
+    
+   
+    
+    U1MODEbits.UARTEN = 0;  // Keep module turned off while we edit settings
+    U1STA = 0x00;           // Clear any residual error flags
+    
+    U1MODEbits.PDSEL = 0;   // 00 = 8 data bits, no parity bit
+    U1MODEbits.STSEL = 0;   // 0  = 1 stop bit
+    
+    U1MODEbits.BRGH = 1;    // Enable High-Speed Mode (divides clock by 4)
+    U1BRG = 95;             // 95 matches 9600 Baud at 3.685 MHz instruction clock
+    
+ 
+    
+    U1MODEbits.UARTEN = 1;  // Turn on the core UART1 module engine
+    U1STAbits.UTXEN = 1;    // Power up the transmission hardware circuit pin
+    
+    IFS0bits.U1RXIF = 0;
+    IEC0bits.U1RXIE = 1; //enable recieve interrupt
+}
+void UART_write_char(char c){
+
+    while(U1STAbits.UTXBF == 1);
+    
+    U1TXREG = c;
+
+}
+
+void UART_Write_string(char *st){
+
+    while(*st !='\0'){
+        UART_write_char(*st);
+        st++;
+    }
+
+}
+
 
 void __attribute__((interrupt,auto_psv))_T1Interrupt(void){
 
@@ -147,6 +201,11 @@ void __attribute__((interrupt,auto_psv))_T1Interrupt(void){
     }
     IFS0bits.T1IF = 0;
    
+}
+void __attribute__((interrupt,no_auto_psv)) _U1RXInterrupt(void){
+    char controls = U1RXREG;
+    update_state(controls);
+    IFS0bits.U1RXIF = 0;
 }
 
 void shiftPos(void){
@@ -193,6 +252,29 @@ void check_button(void){
 
 }
 
+void check_direction_conflict(char controls){
+    
+   
+    if(state != WON){
+        if(controls == 'd'){
+            if(currentDirection != LEFT) nextDirection = RIGHT;
+        }
+        else if(controls == 'a'){
+            if(currentDirection != RIGHT) nextDirection = LEFT;
+        }
+        else if(controls == 'w'){
+            if(currentDirection != DOWN) nextDirection = UP;
+        }
+        else if(controls == 's'){
+            if(currentDirection != UP) nextDirection = DOWN;
+        }
+    }
+}
+
+
+
+
+
 void draw_snake(void){
     
     LCD_ClearScreen();
@@ -224,11 +306,18 @@ void apple_consumed_check(void){
     }
 
 }
+
+
+
 void menu(void){
-        LCD_ClearScreen();
-        LCD_PutString("   PRESS S4  ",13);
-        LCD_PutString("      To Start",14);
+    LCD_ClearScreen();
+    LCD_ShiftCursorTo(0, 0);
+    LCD_PutString("   S4 OR 'R'    ", 16);
+    LCD_ShiftCursorTo(0, 1);
+    LCD_PutString("    TO START    ", 16);
 }
+
+
 void won(void){
         LCD_ClearScreen();
         LCD_PutString("    WON",7);
@@ -331,6 +420,8 @@ void restart(){
     T1CONbits.TON = 0;
     Snake[0].x = 0;
     Snake[0].y = 0;
+    menu_drawn_flag = 0;
+    state = MENU;
     for(int i = 1; i < 32; i++)
     {
         Snake[i].x = 0;
@@ -350,31 +441,59 @@ void restart(){
     draw_apple();
     
 }
+void update_state(char controls){
+    if(controls== ' ' || controls == '\r' || controls == '\n' || controls == '\0') {
+        IFS0bits.U1RXIF = 0;
+        return;
+    }
+    
+    if(state == MENU && controls == 'r'){
+        
+        state = PLAYING;
+        T1CONbits.TON = 1;
+        new_pos_calc();
+        draw_snake();
+        draw_apple();   
+    }
+    
+    else if(state == PLAYING){
+        if(controls == 'w' ||  controls == 'a' ||controls == 's' || controls == 'd' ){
+            
+            check_direction_conflict(controls);
+        }
+        else {
+            UART_Write_string("Invalid movement\r\n");
+        }
+    
+    }
+
+}
+
 
 
 int main(void) {
     SYS_Initialize();
-    GPIO_init();
-    Timer_init();
+    GPIO_Init();
+    UART_Init();
+    Timer_Init();
     init_game();
-    menu();
-    while(PORTDbits.RD13);
     srand(TMR1);
-    T1CONbits.TON = 1;
-    state = PLAYING;
-    new_pos_calc();
-    draw_snake();
-    draw_apple();
+   
     while(1){
-        check_button();
+        // check_button();
+        
         switch(state){
             
-            case MENU:  menu();
-                        break;
+            case MENU:  
+                    if(!menu_drawn_flag) {
+                        menu();
+                        menu_drawn_flag = 1; 
+                    }
+                    break;
             
             case WON:
                     won();
-                    __delay_ms(1000);
+                    for(int i = 0; i<5000;i++);
                     state = RESTART;               
                     break;
             
@@ -385,7 +504,7 @@ int main(void) {
                 break;
                         
             case GAME_OVER: game_over();
-                            __delay_ms(1000);
+                            for(int i = 0; i<5000;i++);
                             state = RESTART;
                             break;
         }

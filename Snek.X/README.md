@@ -12,6 +12,7 @@ This project was built during my embedded systems internship to practice interru
 * Microchip Explorer 16/32 Development Board
 * 16×2 HD44780 Character LCD
 * Push Buttons (S3, S4, S5, S6)
+* UART
 
 \----------------------------------------------------------
 
@@ -19,6 +20,7 @@ This project was built during my embedded systems internship to practice interru
 
 * Interrupt-driven snake movement using Timer1
 * Four-direction movement using hardware push buttons
+* also applied UART based command movements
 * Random apple generation
 * Apple collision detection
 * Snake growth
@@ -37,6 +39,7 @@ This project was built during my embedded systems internship to practice interru
 
 * GPIO
 * Timer1
+* UART
 * Interrupt Service Routines (ISR)
 * Finite State Machine (FSM)
 * Structures
@@ -49,23 +52,6 @@ This project was built during my embedded systems internship to practice interru
 
 \----------------------------------------------------------
 
-## Game States
-
-MENU
-│
-▼
-PLAYING
-│
-├──────────────► WON
-│                   │
-│                   ▼
-│               RESTART
-│
-└──────────────► GAME OVER (planned)
-│
-▼
-RESTART
----
 
 ## Controls
 
@@ -75,6 +61,17 @@ RESTART
 |S4|Move Right / Start / Restart|
 |S5|Move Down|
 |S6|Move Up|
+
+---------------or--------------------
+
+
+|-|-|
+|'a'|Move Left|
+|'d'|Move Right|
+|'s'|Move Down|
+|'w'|Move Up|
+|'r'| start |
+
 
 \----------------------------------------------------------
 
@@ -111,6 +108,7 @@ This project helped reinforce concepts such as:
 
 * Interrupt-driven embedded programming
 * Designing software using finite state machines
+* implementing UART based command parsing and movement
 * Managing shared state between ISRs and the main loop
 * Working directly with hardware peripherals
 * Programming the HD44780 LCD controller
