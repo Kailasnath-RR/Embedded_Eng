@@ -1,3 +1,4 @@
+
 /* 
  * File:   main.c
  * Author: Intern08
@@ -15,7 +16,7 @@
 /*
  * 
  */
-
+int sampleCount = 0;
 volatile uint16_t samples[16]
     __attribute__((space(xmemory), aligned(32))); //buffer that holds adc1buf0 values
 
@@ -30,7 +31,7 @@ long sampling_speed_reset = 0;
 
 int lock_state = 0;
 
-char buffer[30];
+char buffer[100];
 void GPIO_Init(void){
     
     ANSELGbits.ANSG10 = 0;
@@ -176,11 +177,11 @@ void lock_check(char c){
     }
     else if (lock_state == 2 && c == 'C'){
         lock_state = 3;
-        UART_WriteString("Unlocked Machine.Enter 'L' anytime to lock system");
+        UART_WriteString("TYPE=STATUS,STATE=UNLOCKED\r\n");
         
     }else{
         lock_state = 0;
-        UART_WriteString("System Locked. Enter Password in sequence to Unlock:\r\n");
+        UART_WriteString("TYPE=STATUS,STATE=LOCKED\r\n");
     }
 
 }
@@ -196,16 +197,16 @@ void set_machine_state(char c){
 
             if(c == 'p' || c == 'P'){
                 machine_state = 0;
-                UART_WriteString("Machine paused.\r\n");
+                UART_WriteString("TYPE=STATUS,STATE=PAUSED\r\n");
             }
             else if(c == 's' || c == 'S'){
                 machine_state = 1;
-                UART_WriteString("Machine running.\r\n");
+                UART_WriteString("TYPE=STATUS,STATE=RUNNING\r\n");
             }
             else if(c == '+'){
                 if(PR3 < 4000){ PR3 = 4000;}
                 PR3 -=2000;
-                UART_WriteString("Machine speed increased.\r\n");
+                UART_WriteString("TYPE=STATUS,STATE=SPEED_INCREASED\r\n");
 
             }
             else if(c == '-'){
@@ -213,18 +214,18 @@ void set_machine_state(char c){
 
                 if(PR3>4000){
                     PR3 +=2000;
-                    UART_WriteString("Machine speed decreased.\r\n");
+                    UART_WriteString("TYPE=STATUS,STATE=SPEED_DECREASED\r\n");
                 }
 
             }
             else if(c == 'L'){
                 lock_state = 0;
-                UART_WriteString("System Locked. Enter Password in sequence to Unlock:\r\n");
+                UART_WriteString("TYPE=STATUS,STATE=LOCKED\r\n");
         
             }       
     
         else{
-            UART_WriteString("Invalid Command\r\n");
+            UART_WriteString("TYPE=ERROR,STATE=INVALID_COMMAND\r\n");
         }
     }
     
@@ -291,6 +292,9 @@ void __attribute__((interrupt,no_auto_psv)) _DMA0Interrupt(void)
 }
 
 void __attribute__((interrupt,no_auto_psv)) _U1RXInterrupt(void){
+    if(U1STAbits.OERR == 1){
+        U1STAbits.OERR = 0; // Clear buffer overrun error if telemetry flooded RX
+    }
     set_machine_state(U1RXREG);
      IFS0bits.U1RXIF = 0;
 }
@@ -303,8 +307,7 @@ int main() {
     DMA_Init();
     TImer3_Init();
     
-    UART_WriteString("UART initialized");
-    UART_WriteString("Getting ready for ADC data stream."); 
+    
     
     
     while(1){
@@ -315,8 +318,8 @@ int main() {
             
                 values = samples[15];
                 LED_ON(values);
-                float voltage  = (values *3.3)/1023;
-                sprintf(buffer,"Voltage:%3f V\r\n",voltage);
+                //float voltage  = (values *3.3)/1023;
+                sprintf(buffer,"TYPE=DATA,COUNT=%u,ADC=%u,SAMPLE_PERIOD=%u\r\n",sampleCount++,values,PR3);
                 UART_WriteString(buffer);
                 Data_Ready_flag = 0;
             }

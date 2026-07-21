@@ -11,10 +11,10 @@
 /*
  * 
  */
-#define lcd_size  33
+#define lcd_size  32  //not used anywhere yet
 void update_state(char controls);
-int length = 1;
-int menu_drawn_flag = 0;
+int length = 1; // keeps track of snake length
+int menu_drawn_flag = 0; // flag to check if the menu has been drawn once
 
 typedef struct{
     int x;
@@ -101,7 +101,7 @@ void init_game(){
 
     
 }
-void new_pos_calc(void)
+void new_pos_calc(void) //calculates apple position on the lcd and also checks for collision with snake body 
 {   
     int collision;
     do{
@@ -220,7 +220,7 @@ void shiftPos(void){
 
 
 
-void check_button(void){
+void check_button(void){   //can use this function to implement buttons instead of uart based commands
     
     if(state != WON){
        
@@ -323,11 +323,23 @@ void won(void){
         LCD_PutString("    WON",7);
         
 }
-void game_over(){
+void game_over(){   //not used anywhere
         LCD_ClearScreen();
         LCD_PutString("  GAME OVER",11);
         
        
+}
+void check_win(void)
+{
+    if(length == 32)
+    {
+        T1CONbits.TON = 0;
+        state = WON;
+
+        LCD_ClearScreen();
+        LCD_PutString("    WON", 7);
+        
+    }
 }
 
 void move_snake(enum Direction currentDirection){
@@ -368,18 +380,7 @@ void move_snake_right(void){
             }
     apple_consumed_check();
 }
-void check_win(void)
-{
-    if(length == 32)
-    {
-        T1CONbits.TON = 0;
-        state = WON;
 
-        LCD_ClearScreen();
-        LCD_PutString("    WON", 7);
-        
-    }
-}
 void move_snake_left(void){
         shiftPos();
         Snake[0].x--;
@@ -414,6 +415,8 @@ void move_snake_down(void){
     apple_consumed_check();
 }
 
+//snake movement has been implemented in such a way that it wraps around the lcd back to start incase it goes out of bounds
+
 void restart(){
     length = 1;
     IFS0bits.T1IF = 0;
@@ -440,9 +443,11 @@ void restart(){
     draw_snake();
     draw_apple();
     
-}
+} //holds the lcd in restart state unless the S4 button is pressed
+
+
 void update_state(char controls){
-    if(controls== ' ' || controls == '\r' || controls == '\n' || controls == '\0') {
+    if(controls== ' ' || controls == '\r' || controls == '\n' || controls == '\0') {  //not letting these guys mess up my program
         IFS0bits.U1RXIF = 0;
         return;
     }
@@ -480,7 +485,7 @@ int main(void) {
     srand(TMR1);
    
     while(1){
-        // check_button();
+        // check_button(); 
         
         switch(state){
             
@@ -503,7 +508,7 @@ int main(void) {
                 restart();
                 break;
                         
-            case GAME_OVER: game_over();
+            case GAME_OVER: game_over();   // hasnt been implemented yet (probably never will))
                             for(int i = 0; i<5000;i++);
                             state = RESTART;
                             break;
